@@ -73,13 +73,7 @@ try:
             else:
                 note_chapter = location_data[0].strip()
                 note = note_divs[i+1].text.strip()
-                if note_chapter != chapter:
-                    notes[chapter].append(kindle_highlight)
-                    kindle_highlight = {"type": "note", "text": note, "location": location}
-                    chapter = note_chapter
-                    notes.setdefault(chapter,[])
-                    notes[chapter].append(kindle_highlight)
-                elif kindle_highlight["type"] == "highlight":
+                if kindle_highlight["type"] == "highlight":
                     kindle_highlight["notes"].append(note)
                 else:
                     notes[chapter].append(kindle_highlight)
@@ -90,20 +84,18 @@ except AttributeError as e:
     exit(1)
 
 output = f'# {book_title}\n\n'
-pandoc_div = ":::"
 for chapter in notes:
-    output += f'## {chapter}\n\n'
+    output += f'\n\n'
     for kindle_highlight in notes[chapter]:
-        entry = pandoc_div
+        entry = ""
         if kindle_highlight["type"] == "note":
             entry += "\n"
             entry += f'> {kindle_highlight["text"]}\n'
         if kindle_highlight["type"] == "highlight":
-            entry += f'{kindle_highlight["color"].lower()}\n\n'
             entry += f'> {kindle_highlight["text"]}\n\n'
             for note in kindle_highlight["notes"]:
-                entry += f'{note}\n\n'
-        entry += pandoc_div + "\n"
+                entry += f'\t\t{note}\n\n'
+        entry +="---\n"
         output += entry + "\n"
 
 try:
